@@ -1,4 +1,4 @@
-# CS525-2025-Spring
+# CS525-2026-Spring
 For teaching CS525: Compiler Design and Implementation
 
 ## Mirroring this repository
