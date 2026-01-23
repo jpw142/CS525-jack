@@ -1,0 +1,18 @@
+##################### beg of [README] ######################
+
+Assign#01: It is due Tuesday, the 27th of January, 2026.
+
+############################################################
+
+def term_freevars(tm0):
+    """
+    Points: 10
+    This function takes a term [tm0] and returns the set of
+    free variables in [tm0]. The set returned should be the
+    built-in set in Python
+    """
+    raise NotImplementedError
+
+############################################################
+##################### end of [README] ######################
+############################################################
