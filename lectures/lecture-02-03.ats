@@ -1,0 +1,37 @@
+(* ****** ****** *)
+(*
+HX-2026-02-03:
+Outlining a reference interpreter
+implementation for Church's lambda-calculus
+*)
+(* ****** ****** *)
+
+datatype term =
+| TMvar of strn
+| TMlam of (strn, term)
+| TMapp of (term, term)
+
+(* ****** ****** *)
+
+fun
+interp
+(tm0: term): term =
+(
+  case+ tm0 of
+  | TMvar _ => tm0
+  | TMlam _ => tm0
+  | TMapp(tm1, tm2) =>
+    let
+      val tm1 = interp(tm1)
+    in
+      case- tm1 of
+      | TMlam(x01, tm1) => interp(subst0(tm1, x01, tm2))
+    end
+)
+
+(* ****** ****** *)
+(* ****** ****** *)
+//
+(***********************************************************************)
+// end of [CS525--2026-Spring/lectures/lecture-02-03.ats]
+(***********************************************************************)
