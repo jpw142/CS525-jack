@@ -1,0 +1,79 @@
+(* ****** ****** *)
+(* ****** ****** *)
+//
+datatype term =
+(* ****** ****** *)
+|TMvar of strn // var
+|TMlam of (strn, term) // \x.t0
+|TMapp of (term, term) // t1(t2)
+(* ****** ****** *)
+|TMint of sint // signed integers
+|TMbtf of bool // boolean values: true/false
+|TMopr of (strn(*opr*), list(term)(*args*))
+(* ****** ****** *)
+|TMfix of (strn(*f*), strn(*x*), term(*body*))
+|TMif0 of (term(*test*), term(*then*), term(*else*))
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+#extern
+fun
+term_subst0:
+(term, strn, term) -> term
+//
+(* ****** ****** *)
+(* ****** ****** *)
+//
+fun
+term_interp
+(tm0: term): term =
+(
+case tm0 of
+| TMvar _ => tm0
+| TMlam _ => tm0 // no evaluation under 'lambda'
+| TMapp _ => f0_app(tm0)
+| TMif0 _ => f0_if0(tm0)
+) where
+{
+//
+fun
+f0_app
+(tm0: term): term =
+let
+//
+val-
+TMapp
+(tm1, tm2) = tm0
+//
+val tm1 = term_interp(tm1)
+val tm2 = term_interp(tm2)
+in
+case- tm1 of
+|
+TMlam(x01, tmx) =>
+term_interp(term_subst0(tmx, x01, tm2))
+end // end-of-[f0_app]
+//
+fun
+f0_if0
+(tm0: term): term =
+let
+val-
+TMif0
+(tm1, tm2, tm3) = tm0
+val tm1 = term_interp(tm1)
+in//let
+case- tm1 of
+TMbtf(btf) =>
+if btf
+then term_interp(tm2) else term_interp(tm3)
+end // end-of-[f0_if0]
+//
+}
+//
+(* ****** ****** *)
+(* ****** ****** *)
+(***********************************************************************)
+// end of [HWXI/CS525--2026-Spring/lectures/lecture-02-05.ats]
+(***********************************************************************)
