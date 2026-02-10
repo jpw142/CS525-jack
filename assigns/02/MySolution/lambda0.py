@@ -83,9 +83,9 @@ def term_subst0(tm0, x00, sub):
             if (x00 == x01):
                 return tm0
             else:
-                return TMlam(x01, subst(tm0.arg2))
+                return TMlam(x01, subst0(tm0.arg2))
         if (tm0.ctag == "TMapp"):
-            return TMapp(subst(tm0.arg1), subst(tm0.arg2))
+            return TMapp(subst0(tm0.arg1), subst0(tm0.arg2))
         raise TypeError(tm0) # HX: should be deadcode!
     return subst0(tm0)
 #
