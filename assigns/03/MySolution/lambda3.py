@@ -190,7 +190,7 @@ def test_church_numerals():
         result = church_to_int(cn)
         print(f"church_numeral({i}) -> church_to_int = {result}")
         assert result == i, f"Failed for {i}"
-    print("✓ Church numeral conversions working")
+    print("  Church numeral conversions working")
 
 def test_lambda_normalize_basic():
     """Test basic normalization"""
@@ -203,7 +203,7 @@ def test_lambda_normalize_basic():
     result = lambda_normalize(app)
     print(f"(λx.x) y = {result}")
     assert result.ctag == "TMvar" and result.arg1 == "y"
-    print("✓ Identity application works")
+    print("  Identity application works")
     
     # Test 2: K combinator
     # (λx.λy.x) a b -> a
@@ -213,7 +213,7 @@ def test_lambda_normalize_basic():
     result = lambda_normalize(app2)
     print(f"K a b = {result}")
     assert result.ctag == "TMvar" and result.arg1 == "a"
-    print("✓ K combinator works")
+    print("  K combinator works")
     
     # Test 3: Normalization under lambda
     # λz.(λx.x) z should normalize to λz.z
@@ -223,7 +223,7 @@ def test_lambda_normalize_basic():
     print(f"λz.(λx.x) z = {result}")
     assert result.ctag == "TMlam"
     assert result.arg2.ctag == "TMvar"
-    print("✓ Normalization under lambda works")
+    print("  Normalization under lambda works")
 
 def test_lambda_normalize_church():
     """Test normalization with Church numerals"""
@@ -250,7 +250,7 @@ def test_lambda_normalize_church():
     print(f"succ 2 = {result_int}")
     assert result_int == 3, f"Expected 3, got {result_int}"
     
-    print("✓ Successor function works correctly")
+    print("  Successor function works correctly")
 
 def test_ipred():
     """Test predecessor function"""
@@ -290,7 +290,7 @@ def test_ipred():
     print(f"pred 5 = {result_int}")
     assert result_int == 4, f"pred 5: expected 4, got {result_int}"
     
-    print("✓ Predecessor function works correctly")
+    print("  Predecessor function works correctly")
 
 def test_isqrt():
     """Test integer square root function"""
@@ -313,8 +313,7 @@ def test_isqrt():
         result_int = church_to_int(result)
         print(f"isqrt({n}) = {result_int} (expected {expected})")
         assert result_int == expected, f"isqrt({n}): expected {expected}, got {result_int}"
-    
-    print("✓ Square root function works correctly")
+    print(" Square root function works correctly")
 
 def run_all_tests():
     """Run all tests"""
