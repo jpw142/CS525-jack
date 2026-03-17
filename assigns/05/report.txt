@@ -1,0 +1,69 @@
+# Assignment 05 Report — Compiling Extended LC to Pure LC
+
+CS525 Spring 2026
+
+## Overview
+
+For this assignment I wrote a compiler that takes terms from the extended lambda calculus (integers, booleans, tuples, arithmetic, if-then-else, let bindings, recursion) and compiles them down to pure lambda calculus — just TMvar, TMlam, and TMapp. Everything else gets encoded using Church encodings.
+
+## 1. Compiling Integers
+
+Integers get turned into Church numerals. So TMint(0) becomes `λf.λx. x`, TMint(1) becomes `λf.λx. f x`, TMint(3) becomes `λf.λx. f(f(f x))`, etc. Basically the number n is represented by applying f to x n times. This works because you can define all the arithmetic operations as functions on Church numerals.
+
+## 2. Compiling Booleans
+
+TMbtf(True) compiles to `λt.λf. t` and TMbtf(False) compiles to `λt.λf. f`. So true picks the first argument and false picks the second. This is nice because it means booleans already work like if-then-else selectors on their own.
+
+## 3. Compiling Arithmetic (+, -, *, /, %)
+
+Each operator maps to a Church-encoded combinator:
+
+- Addition: `λm.λn.λf.λx. m f (n f x)` — applies f m+n times total
+- Multiplication: `λm.λn.λf. m (n f)` — applies n applications of f, m times
+- Subtraction: this one is trickier. I used the predecessor-via-pairs technique where pred = `λn. fst(n step (pair 0 0))` and step = `λp. pair (snd p) (succ (snd p))`. Then sub(m,n) = n pred m. Basically you iterate predecessor n times on m.
+- Division: had to use recursion for this one. I defined div(m,n) = if n <= m then 1 + div(m-n, n) else 0, and used the Z combinator to make it recursive
+- Modulo: same approach as division — mod(m,n) = if n <= m then mod(m-n, n) else m
+
+For comparisons I built them up from iszero and subtraction. iszero(n) = n (λx. false) true, which works because if n is 0 it returns true, otherwise the inner lambda runs at least once and returns false. Then leq(m,n) = iszero(sub(m,n)) because Church subtraction bottoms out at 0 (monus). From leq I derived eq, lt, gt, etc using boolean combinators.
+
+## 4. Tuples (TMtup, TMfst, TMsnd)
+
+I used Church pairs. A pair is `λa.λb.λs. s a b` — it stores two values and waits for a selector. TMfst applies `λp. p (λa.λb. a)` which picks the first element, TMsnd applies `λp. p (λa.λb. b)` which picks the second. Pretty standard encoding.
+
+## 5. Recursion (TMfix)
+
+TMfix(f, x, body) gets compiled using the Z combinator, which is the call-by-value version of Y:
+
+```
+Z = λf. (λx. f (λv. x x v)) (λx. f (λv. x x v))
+```
+
+So TMfix(f, x, body) becomes Z (λf. λx. [[body]]).
+
+The reason I used Z instead of Y is that under call-by-value, Y diverges — the self-application x x gets evaluated immediately and loops forever. Z wraps it in a thunk (λv. x x v) so it only fires when you actually call the function with an argument.
+
+For functions that need multiple arguments like power(x, n), since TMfix only binds one argument variable, I packed the arguments into a tuple and unpacked with TMfst/TMsnd inside the body.
+
+## 6. Conditionals (if-then-else)
+
+TMif0(cond, then, else) compiles to:
+
+```
+[[cond]] (λ_. [[then]]) (λ_. [[else]]) (λx. x)
+```
+
+The issue is that in call-by-value, both branches get evaluated before the boolean picks one. So if you have a recursive function with an if-then-else, the recursive call in the else branch fires even when the condition is true, and you get infinite recursion. Wrapping each branch in a thunk (λ_. ...) delays evaluation. The boolean selects one thunk, then the identity function (λx. x) forces it. This was actually the thing that tripped me up the most — without the thunks everything just diverged on any recursive test case.
+
+## 7. Let Bindings
+
+TMlet(x, e1, e2) just becomes (λx. [[e2]]) [[e1]]. Standard stuff.
+
+## Testing
+
+I tested with a call-by-value evaluator that uses closures, then extracts Church numeral values by applying the result to (+1) and 0. All three required programs work:
+
+- Factorial: tested fact(0) through fact(5), all correct (fact(5) = 120)
+- Fibonacci: tested fib(0) through fib(7), all correct (fib(7) = 13)  
+- Power: tested various inputs including power(2,10) = 1024
+
+I also tested all the basic operations (arithmetic, comparisons, tuples, let, if-then-else, division, modulo) and verified that every compiled output passes the purity check — only TMvar, TMlam, TMapp in the output.
